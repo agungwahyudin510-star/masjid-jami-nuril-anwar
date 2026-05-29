@@ -1,65 +1,258 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+
+import {
+  Home,
+  BookOpen,
+  Bell,
+  Users,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+
+export default function HomePage() {
+  const [time, setTime] = useState("");
+const [prayerTimes, setPrayerTimes] = useState<any>(null);
+const [nextPrayer, setNextPrayer] = useState("Maghrib");
+const [countdown, setCountdown] = useState("");
+
+  useEffect(() => {
+    const fetchPrayerTimes = async () => {
+      const prayerInterval = setInterval(() => {
+  if (!prayerTimes) return;
+
+  const prayers = [
+    { name: "Subuh", time: prayerTimes.Fajr },
+    { name: "Dzuhur", time: prayerTimes.Dhuhr },
+    { name: "Ashar", time: prayerTimes.Asr },
+    { name: "{nextPrayer}", time: prayerTimes.Maghrib },
+    { name: "Isya", time: prayerTimes.Isha },
+  ];
+
+  const now = new Date();
+
+  for (const prayer of prayers) {
+    const [hours, minutes] = prayer.time.split(":");
+
+    const prayerDate = new Date();
+
+    prayerDate.setHours(hours);
+    prayerDate.setMinutes(minutes);
+    prayerDate.setSeconds(0);
+
+    if (prayerDate > now) {
+      setNextPrayer(prayer.name);
+
+      const diff = prayerDate.getTime() - now.getTime();
+
+      const hrs = Math.floor(diff / 1000 / 60 / 60);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+
+      setCountdown(
+        `${hrs.toString().padStart(2, "0")}:${mins
+          .toString()
+          .padStart(2, "0")}:${secs
+          .toString()
+          .padStart(2, "0")}`
+      );
+
+      break;
+    }
+  }
+}, 1000);
+  const response = await fetch("/api/prayer");
+  const data = await response.json();
+
+  setPrayerTimes(data);
+};
+
+fetchPrayerTimes();
+    const updateTime = () => {
+      const now = new Date();
+
+      const formatted = now.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      setTime(formatted);
+    };
+
+    updateTime();
+
+    const interval = setInterval(updateTime, 1000);
+
+    return () => {
+  clearInterval(interval);
+  clearInterval(prayerInterval);
+};
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[#020617] text-white pb-28">
+
+      <div className="max-w-md mx-auto px-4 py-6">
+
+        {/* HEADER */}
+
+        <div className="flex items-center justify-between">
+
+          <div>
+            <p className="text-emerald-400 text-sm">
+              Assalamu’alaikum
+            </p>
+
+            <h1 className="text-2xl font-bold mt-1">
+              Nuril Anwar
+            </h1>
+          </div>
+
+          <div className="text-right">
+            <p className="text-2xl font-bold">
+              {time}
+            </p>
+
+            <p className="text-slate-400 text-sm">
+              Jumat, 29 Mei
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* QUOTE */}
+
+        <Card className="mt-6 bg-gradient-to-br from-emerald-500 to-emerald-700 border-0 rounded-3xl text-white">
+          <CardContent className="p-6">
+
+            <p className="text-sm opacity-80">
+              Quote Hari Ini
+            </p>
+
+            <h2 className="text-xl font-semibold leading-relaxed mt-3">
+              “Apa yang kau cari sedang mencarimu.”
+            </h2>
+
+            <p className="mt-4 text-sm opacity-80">
+              — Jalaluddin Rumi
+            </p>
+
+          </CardContent>
+        </Card>
+
+        {/* PRAYER CARD */}
+
+        <Card className="mt-6 bg-slate-900 border-slate-800 rounded-3xl text-white">
+          <CardContent className="p-6">
+
+            <p className="text-slate-400 text-sm">
+              Waktu Sholat Berikutnya
+            </p>
+
+            <div className="flex items-end justify-between mt-4">
+
+              <div>
+                <h2 className="text-4xl font-bold">
+                  {nextPrayer}
+                </h2>
+
+                <p className="text-emerald-400 text-lg mt-2">
+                  {prayerTimes?.nextPrayer || "--:--"} WIB
+                </p>
+              </div>
+
+              <div className="tex t-right">
+                <p className="text-sm text-slate-400">
+                  Countdown
+                </p>
+
+                <p className="text-xl font-semibold mt-1">
+                  {countdown}
+                </p>
+              </div>
+
+            </div>
+
+            <Button className="w-full mt-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600">
+              Lihat Jadwal Lengkap
+            </Button>
+
+          </CardContent>
+        </Card>
+
+        {/* KAJIAN */}
+
+        <div className="mt-8">
+
+          <h3 className="text-lg font-semibold mb-4">
+            Kajian Mendatang
+          </h3>
+
+          <Card className="bg-slate-900 border-slate-800 rounded-3xl text-white">
+            <CardContent className="p-5">
+
+              <p className="text-emerald-400 text-sm">
+                Setiap Malam Senin
+              </p>
+
+              <h4 className="text-xl font-semibold mt-2">
+                Kajian Tauhid
+              </h4>
+
+              <p className="text-slate-400 mt-2 text-sm">
+                Ba’da Isya bersama Ustadz Abdullah
+              </p>
+
+            </CardContent>
+          </Card>
+
         </div>
-      </main>
-    </div>
+
+      </div>
+
+      {/* BOTTOM NAVIGATION */}
+
+      <div className="fixed bottom-0 left-0 right-0 border-t border-slate-800 bg-[#020617]/90 backdrop-blur-xl">
+
+        <div className="max-w-md mx-auto px-6 py-4 flex items-center justify-between">
+
+          <button className="flex flex-col items-center text-emerald-400">
+            <Home size={22} />
+            <span className="text-xs mt-1">
+              Home
+            </span>
+          </button>
+
+          <button className="flex flex-col items-center text-slate-400">
+            <BookOpen size={22} />
+            <span className="text-xs mt-1">
+              Quran
+            </span>
+          </button>
+
+          <button className="flex flex-col items-center text-slate-400">
+            <Bell size={22} />
+            <span className="text-xs mt-1">
+              Kajian
+            </span>
+          </button>
+
+          <button className="flex flex-col items-center text-slate-400">
+            <Users size={22} />
+            <span className="text-xs mt-1">
+              Organisasi
+            </span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </main>
   );
 }
