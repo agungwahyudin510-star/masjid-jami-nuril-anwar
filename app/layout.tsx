@@ -10,14 +10,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  manifest: "/manifest.json",
   title: "Masjid Jami Nuril Anwar",
   description: "Islamic Digital Ecosystem",
-  themeColor: "#166534",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Nuril Anwar",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
