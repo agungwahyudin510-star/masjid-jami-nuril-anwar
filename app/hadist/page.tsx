@@ -70,7 +70,7 @@ export default function HadistPage() {
       const book = BOOKS.find(b => b.id === selectedBook)!;
       // Ambil range lebih besar untuk hasil lebih lengkap
       const res = await fetch(
-        `https://api.hadith.gading.dev/books/${selectedBook}?range=1-500`
+        `https://api.hadith.gading.dev/books/${selectedBook}?range=1-300`
       );
       if (!res.ok) throw new Error("Gagal fetch");
       const data = await res.json();
