@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const quotes = [
   { text: "Apa yang kau cari sedang mencarimu.", author: "Jalaluddin Rumi" },
@@ -18,8 +17,22 @@ export default function SplashPage() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
   const [quote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
+    // Cek apakah sudah pernah lihat splash di sesi ini
+    const seen = sessionStorage.getItem("splash-seen");
+
+    if (seen) {
+      // Sudah pernah lihat — langsung ke home
+      router.replace("/home");
+      return;
+    }
+
+    // Belum pernah lihat — tampilkan splash
+    setShow(true);
+    sessionStorage.setItem("splash-seen", "true");
+
     // Progress bar
     const progressInterval = setInterval(() => {
       setProgress(prev => {
@@ -30,7 +43,7 @@ export default function SplashPage() {
 
     // Redirect setelah 4 detik
     const timer = setTimeout(() => {
-      router.push("/home");
+      router.replace("/home");
     }, 4000);
 
     return () => {
@@ -39,20 +52,19 @@ export default function SplashPage() {
     };
   }, [router]);
 
+  // Jangan render apapun sebelum check sessionStorage selesai
+  if (!show) return null;
+
   return (
     <main style={{
       minHeight: "100vh",
       background: "linear-gradient(160deg, #0c3d20 0%, #166534 45%, #14532d 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 24,
-      fontFamily: "'Nunito', sans-serif",
-      position: "relative",
-      overflow: "hidden",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 24, fontFamily: "'Nunito', sans-serif",
+      position: "relative", overflow: "hidden",
     }}>
 
-      {/* Background ornament */}
+      {/* Ornamen background */}
       <div style={{
         position: "absolute", top: -80, right: -80,
         width: 300, height: 300, borderRadius: "50%",
@@ -86,10 +98,7 @@ export default function SplashPage() {
         </div>
 
         {/* Nama masjid */}
-        <h1 style={{
-          fontSize: 22, fontWeight: 800, color: "#fff",
-          marginBottom: 4, letterSpacing: "-0.3px",
-        }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", marginBottom: 4 }}>
           Masjid Jami&apos; Nuril Anwar
         </h1>
         <p style={{ fontSize: 12, color: "rgba(212,167,50,.8)", marginBottom: 32, letterSpacing: "1px", textTransform: "uppercase" }}>
@@ -101,8 +110,7 @@ export default function SplashPage() {
           background: "rgba(0,0,0,.25)",
           border: "1px solid rgba(212,167,50,.2)",
           borderRadius: 24, padding: "24px 20px",
-          backdropFilter: "blur(10px)",
-          marginBottom: 32,
+          backdropFilter: "blur(10px)", marginBottom: 32,
         }}>
           <p style={{
             fontSize: 13, fontWeight: 700, color: "rgba(212,167,50,.7)",
