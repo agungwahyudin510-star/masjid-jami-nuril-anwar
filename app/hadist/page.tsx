@@ -2,19 +2,22 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Search, BookOpen, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, Search, BookOpen, X } from "lucide-react";
 
-// ── Sumber kredibel ──────────────────────────────────────────
 const BOOKS = [
-  { id: "bukhari",  label: "Shahih Bukhari",  imam: "Imam Al-Bukhari",  color: "#166534" },
-  { id: "muslim",   label: "Shahih Muslim",   imam: "Imam Muslim",      color: "#1e3a8a" },
-  { id: "abu-daud", label: "Sunan Abu Daud",  imam: "Imam Abu Daud",    color: "#7c2d12" },
-  { id: "tirmidzi", label: "Sunan Tirmidzi",  imam: "Imam At-Tirmidzi", color: "#4a1d96" },
-  { id: "nasai",    label: "Sunan An-Nasai",  imam: "Imam An-Nasai",    color: "#064e3b" },
-  { id: "ibnu-majah", label: "Sunan Ibnu Majah", imam: "Imam Ibnu Majah", color: "#78350f" },
+  // Kutubussittah
+  { id: "bukhari",    label: "Shahih Bukhari",   color: "#166534", kategori: "Kutubussittah" },
+  { id: "muslim",     label: "Shahih Muslim",    color: "#1e3a8a", kategori: "Kutubussittah" },
+  { id: "abu-daud",   label: "Sunan Abu Daud",   color: "#7c2d12", kategori: "Kutubussittah" },
+  { id: "tirmidzi",   label: "Sunan Tirmidzi",   color: "#4a1d96", kategori: "Kutubussittah" },
+  { id: "nasai",      label: "Sunan An-Nasai",   color: "#064e3b", kategori: "Kutubussittah" },
+  { id: "ibnu-majah", label: "Sunan Ibnu Majah", color: "#78350f", kategori: "Kutubussittah" },
+  // Kitab Tambahan
+  { id: "ahmad",      label: "Musnad Ahmad",     color: "#1e40af", kategori: "Musnad" },
+  { id: "malik",      label: "Muwatha Malik",    color: "#065f46", kategori: "Muwatha" },
+  { id: "darimi",     label: "Sunan Ad-Darimi",  color: "#6b21a8", kategori: "Sunan" },
 ];
 
-// ── Autocomplete topik hukum Islam ───────────────────────────
 const TOPICS = [
   "sholat", "puasa", "zakat", "haji", "wudhu", "tayamum",
   "sholat jumat", "sholat berjamaah", "sholat sunnah",
@@ -23,10 +26,10 @@ const TOPICS = [
   "doa", "dzikir", "taubat", "sabar", "syukur",
   "jihad", "amar makruf", "nahi munkar",
   "hukum musik", "hukum gambar", "hukum rokok",
-  "hukum riba", "hukum zina", "hukum mencuri",
   "surga", "neraka", "hari kiamat", "malaikat",
-  "nabi", "sahabat", "tawasul", "bid'ah",
   "kebersihan", "najis", "halal", "haram",
+  "sunnah", "bidah", "tauhid", "syirik",
+  "sedekah", "infaq", "wakaf", "amanah",
 ];
 
 type Hadith = {
@@ -35,24 +38,22 @@ type Hadith = {
   id: string;
   book: string;
   bookLabel: string;
-  imam: string;
   color: string;
 };
 
 export default function HadistPage() {
-  const [search, setSearch]         = useState("");
-  const [results, setResults]       = useState<Hadith[]>([]);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState("");
-  const [selectedBook, setSelectedBook] = useState("bukhari");
+  const [search, setSearch]             = useState("");
+  const [results, setResults]           = useState<Hadith[]>([]);
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState("");
   const [suggestions, setSuggestions]   = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searched, setSearched]     = useState(false);
+  const [searched, setSearched]         = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Autocomplete
   useEffect(() => {
-    if (search.length < 2) { setSuggestions([]); return; }
+    if (search.length < 2) { setSuggestions([]); setShowSuggestions(false); return; }
     const filtered = TOPICS.filter(t => t.includes(search.toLowerCase())).slice(0, 6);
     setSuggestions(filtered);
     setShowSuggestions(filtered.length > 0);
@@ -67,29 +68,39 @@ export default function HadistPage() {
     setShowSuggestions(false);
 
     try {
-      const book = BOOKS.find(b => b.id === selectedBook)!;
-      // Ambil range lebih besar untuk hasil lebih lengkap
-      const res = await fetch(
-        `https://api.hadith.gading.dev/books/${selectedBook}?range=1-300`
-      );
-      if (!res.ok) throw new Error("Gagal fetch");
-      const data = await res.json();
+      const allResults: Hadith[] = [];
 
-      const filtered = data.data.hadiths
-        .filter((h: any) =>
-          h.id.toLowerCase().includes(query.toLowerCase()) ||
-          h.arab.includes(query)
-        )
-        .slice(0, 20) // max 20 hasil
-        .map((h: any) => ({
-          ...h,
-          book: selectedBook,
-          bookLabel: book.label,
-          imam: book.imam,
-          color: book.color,
-        }));
+      for (const book of BOOKS) {
+        try {
+          const res = await fetch(
+            `https://api.hadith.gading.dev/books/${book.id}?range=1-300`
+          );
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (!data?.data?.hadiths) continue;
 
-      setResults(filtered);
+          const filtered = data.data.hadiths
+            .filter((h: any) =>
+              h.id?.toLowerCase().includes(query.toLowerCase())
+            )
+            .slice(0, 5)
+            .map((h: any) => ({
+              number:    h.number,
+              arab:      h.arab,
+              id:        h.id,
+              book:      book.id,
+              bookLabel: book.label,
+              color:     book.color,
+            }));
+
+          allResults.push(...filtered);
+        } catch {
+          // skip kitab yang gagal
+          continue;
+        }
+      }
+
+      setResults(allResults.slice(0, 30));
     } catch {
       setError("Gagal memuat hadist. Coba lagi.");
     } finally {
@@ -102,8 +113,6 @@ export default function HadistPage() {
     setShowSuggestions(false);
     doSearch(topic);
   }
-
-  const currentBook = BOOKS.find(b => b.id === selectedBook)!;
 
   return (
     <>
@@ -132,29 +141,7 @@ export default function HadistPage() {
           font-size: 13px; font-weight: 700; margin-bottom: 16px;
         }
 
-        /* BOOK SELECTOR */
-        .book-scroll {
-          display: flex; gap: 8px; overflow-x: auto;
-          padding-bottom: 4px; margin-top: 16px;
-          scrollbar-width: none;
-        }
-        .book-scroll::-webkit-scrollbar { display: none; }
-        .book-chip {
-          display: inline-flex; align-items: center; gap: 5px;
-          padding: 7px 14px; border-radius: 20px; flex-shrink: 0;
-          font-size: 11px; font-weight: 800; cursor: pointer;
-          border: 1px solid rgba(255,255,255,.2);
-          font-family: 'Nunito', sans-serif;
-          transition: all .2s;
-        }
-        .book-chip.active { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.4); }
-        .book-chip:not(.active) { background: transparent; color: rgba(255,255,255,.55); }
-        .book-chip:active { transform: scale(.95); }
-
-        /* SEARCH BOX */
-        .search-wrap {
-          position: relative; margin: 20px 0 0;
-        }
+        .search-wrap { position: relative; margin: 20px 0 0; }
         .search-box {
           display: flex; align-items: center; gap: 10px;
           background: #fff; border-radius: 16px; padding: 12px 16px;
@@ -176,27 +163,24 @@ export default function HadistPage() {
           transition: all .15s; flex-shrink: 0;
         }
         .search-btn:active { transform: scale(.95); }
-        .search-btn:disabled { opacity: .5; }
+        .search-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-        /* SUGGESTIONS */
         .suggestions-box {
           position: absolute; top: calc(100% + 6px); left: 0; right: 0;
           background: #fff; border-radius: 16px; z-index: 50;
           border: 1px solid rgba(22,101,52,.12);
-          box-shadow: 0 8px 24px rgba(0,0,0,.1);
-          overflow: hidden;
+          box-shadow: 0 8px 24px rgba(0,0,0,.1); overflow: hidden;
         }
         .suggestion-item {
           display: flex; align-items: center; gap: 10px;
           padding: 11px 16px; cursor: pointer;
           border-bottom: 1px solid rgba(0,0,0,.04);
-          transition: background .15s;
           font-size: 13px; font-weight: 600; color: var(--ink);
+          transition: background .15s;
         }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:active { background: rgba(22,101,52,.06); }
 
-        /* HADITH CARD */
         .hadith-card {
           background: #fff; border-radius: 20px; padding: 20px;
           border: 1px solid rgba(22,101,52,.1);
@@ -216,28 +200,32 @@ export default function HadistPage() {
           text-align: right; color: var(--ink);
           direction: rtl; margin-bottom: 14px;
           padding: 14px; background: rgba(22,101,52,.04);
-          border-radius: 12px;
-          border-right: 3px solid var(--g2);
+          border-radius: 12px; border-right: 3px solid var(--g2);
         }
-        .terjemah-text {
-          font-size: 14px; line-height: 1.75;
-          color: #374151;
-        }
+        .terjemah-text { font-size: 14px; line-height: 1.75; color: #374151; }
         .source-row {
           display: flex; align-items: center; justify-content: space-between;
           margin-top: 14px; padding-top: 12px;
           border-top: 1px solid rgba(0,0,0,.06);
         }
 
-        /* SKELETON */
         .skeleton {
-          background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+          background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);
           background-size: 200% 100%; animation: shimmer 1.5s infinite;
           border-radius: 20px; margin-bottom: 14px;
         }
         @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
         .fade-in { animation: fadeUp .3s ease both; }
+
+        .topic-chip {
+          background: #fff; border: 1.5px solid rgba(22,101,52,.15);
+          border-radius: 20px; padding: 7px 14px;
+          font-size: 12px; font-weight: 700; color: var(--g);
+          cursor: pointer; font-family: 'Nunito',sans-serif;
+          transition: all .15s;
+        }
+        .topic-chip:active { background: rgba(22,101,52,.08); transform: scale(.96); }
       `}</style>
 
       <main style={{ minHeight: "100vh", paddingBottom: 40 }}>
@@ -248,7 +236,6 @@ export default function HadistPage() {
             <Link href="/home" className="back-btn">
               <ArrowLeft size={16} /> Kembali
             </Link>
-
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{
                 width: 50, height: 50, borderRadius: 16, flexShrink: 0,
@@ -260,23 +247,9 @@ export default function HadistPage() {
                   Hadist
                 </h1>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,.55)", marginTop: 3 }}>
-                  6 Kitab Hadist Shahih & Sunan
+                  9 Kitab Hadist — Kutubussittah & Musnad
                 </p>
               </div>
-            </div>
-
-            {/* BOOK SELECTOR */}
-            <div className="book-scroll">
-              {BOOKS.map(b => (
-                <button
-                  key={b.id}
-                  className={`book-chip${selectedBook === b.id ? " active" : ""}`}
-                  onClick={() => setSelectedBook(b.id)}
-                >
-                  <BookOpen size={10} />
-                  {b.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>
@@ -298,12 +271,19 @@ export default function HadistPage() {
                 autoComplete="off"
               />
               {search && (
-                <button onClick={() => { setSearch(""); setResults([]); setSearched(false); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
+                <button
+                  onClick={() => { setSearch(""); setResults([]); setSearched(false); setSuggestions([]); }}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
+                >
                   <X size={14} color="#9ca3af" />
                 </button>
               )}
-              <button className="search-btn" onClick={() => doSearch(search)} disabled={!search.trim() || loading}>
-                Cari
+              <button
+                className="search-btn"
+                onClick={() => doSearch(search)}
+                disabled={!search.trim() || loading}
+              >
+                {loading ? "..." : "Cari"}
               </button>
             </div>
 
@@ -320,25 +300,17 @@ export default function HadistPage() {
             )}
           </div>
 
-          {/* INFO KITAB */}
-          <div style={{
-            marginTop: 14, marginBottom: 4,
-            background: "rgba(212,167,50,.08)", border: "1px solid rgba(212,167,50,.2)",
-            borderRadius: 14, padding: "10px 14px",
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <BookOpen size={14} color="#d4a732" />
-            <p style={{ fontSize: 12, color: "#6b7280" }}>
-              Mencari di <strong style={{ color: currentBook.color }}>{currentBook.label}</strong> — {currentBook.imam}
-            </p>
-          </div>
-
+          {/* INFO */}
+          
           {/* LOADING */}
           {loading && (
             <div style={{ marginTop: 16 }}>
               {[120, 100, 130].map((h, i) => (
                 <div key={i} className="skeleton" style={{ height: h }} />
               ))}
+              <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
+                Mencari di 9 kitab hadist...
+              </p>
             </div>
           )}
 
@@ -356,7 +328,7 @@ export default function HadistPage() {
               <p style={{ fontSize: 32, marginBottom: 8 }}>🔍</p>
               <p style={{ fontSize: 14, fontWeight: 700 }}>Hadist tidak ditemukan</p>
               <p style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
-                Coba kata kunci lain atau ganti kitab
+                Coba kata kunci lain
               </p>
             </div>
           )}
@@ -369,23 +341,16 @@ export default function HadistPage() {
               </p>
               {results.map((hadith, i) => (
                 <div key={i} className="hadith-card fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                  {/* Badge */}
                   <div className="hadith-badge" style={{ background: hadith.color }}>
                     <BookOpen size={10} />
                     {hadith.bookLabel} — No. {hadith.number}
                   </div>
-
-                  {/* Arab */}
                   <div className="arab-text">{hadith.arab}</div>
-
-                  {/* Terjemahan */}
                   <p className="terjemah-text">{hadith.id}</p>
-
-                  {/* Source */}
                   <div className="source-row">
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: hadith.color }} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: hadith.color }}>{hadith.imam}</span>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: hadith.color, flexShrink: 0 }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: hadith.color }}>{hadith.bookLabel}</span>
                     </div>
                     <span style={{
                       fontSize: 10, fontWeight: 800, padding: "3px 10px",
@@ -399,48 +364,42 @@ export default function HadistPage() {
             </>
           )}
 
-          {/* EMPTY STATE awal */}
+          {/* EMPTY STATE AWAL */}
           {!searched && !loading && (
             <div style={{ marginTop: 24 }}>
               <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.5px", color: "var(--g2)", marginBottom: 12 }}>
                 ✦ Topik Populer
               </p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {["sholat", "puasa", "zakat", "nikah", "doa", "adab makan", "taubat", "sabar", "haji", "wudhu"].map(t => (
-                  <button
-                    key={t}
-                    onClick={() => handleSuggestion(t)}
-                    style={{
-                      background: "#fff", border: "1.5px solid rgba(22,101,52,.15)",
-                      borderRadius: 20, padding: "7px 14px",
-                      fontSize: 12, fontWeight: 700, color: "var(--g)",
-                      cursor: "pointer", fontFamily: "'Nunito',sans-serif",
-                      transition: "all .15s",
-                    }}
-                  >
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                {["sholat", "puasa", "zakat", "nikah", "doa", "adab makan", "taubat", "sabar", "haji", "wudhu", "tauhid", "sedekah"].map(t => (
+                  <button key={t} className="topic-chip" onClick={() => handleSuggestion(t)}>
                     {t}
                   </button>
                 ))}
               </div>
 
-              {/* Info sumber */}
-              <div style={{
-                marginTop: 20, background: "#fff",
-                border: "1px solid rgba(22,101,52,.1)",
-                borderRadius: 16, padding: "16px",
-              }}>
-                <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.5px", color: "var(--g2)", marginBottom: 10 }}>
-                  ✦ Sumber Referensi
+              {/* Daftar Kitab */}
+              <div style={{ background: "#fff", border: "1px solid rgba(22,101,52,.1)", borderRadius: 16, padding: 16 }}>
+                <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "1.5px", color: "var(--g2)", marginBottom: 12 }}>
+                  ✦ Kitab yang Tersedia
                 </p>
-                {BOOKS.map(b => (
-                  <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: b.color, flexShrink: 0 }} />
-                    <div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>{b.label}</span>
-                      <span style={{ fontSize: 11, color: "#9ca3af" }}> — {b.imam}</span>
+                {["Kutubussittah", "Musnad", "Muwatha", "Sunan"].map(kategori => {
+                  const kitabs = BOOKS.filter(b => b.kategori === kategori);
+                  if (!kitabs.length) return null;
+                  return (
+                    <div key={kategori} style={{ marginBottom: 12 }}>
+                      <p style={{ fontSize: 10, fontWeight: 800, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 6 }}>
+                        {kategori}
+                      </p>
+                      {kitabs.map(b => (
+                        <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: "50%", background: b.color, flexShrink: 0 }} />
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{b.label}</span>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
