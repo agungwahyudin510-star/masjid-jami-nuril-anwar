@@ -1,80 +1,149 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const quotes = [
-  {
-    text: "Apa yang kau cari sedang mencarimu.",
-    author: "Jalaluddin Rumi",
-  },
-  {
-    text: "Luka adalah tempat cahaya masuk ke dalam dirimu.",
-    author: "Jalaluddin Rumi",
-  },
-  {
-    text: "Ilmu tanpa amal adalah kegilaan, amal tanpa ilmu adalah kesia-siaan.",
-    author: "Imam Al-Ghazali",
-  },
-  {
-    text: "Jangan tertundanya pemberian membuatmu putus asa.",
-    author: "Ibnu Athaillah",
-  },
-  {
-    text: "Di dalam hati terdapat kekosongan yang hanya dapat diisi dengan Allah.",
-    author: "Ibnu Qayyim",
-  },
+  { text: "Apa yang kau cari sedang mencarimu.", author: "Jalaluddin Rumi" },
+  { text: "Luka adalah tempat cahaya masuk ke dalam dirimu.", author: "Jalaluddin Rumi" },
+  { text: "Ilmu tanpa amal adalah kegilaan, amal tanpa ilmu adalah kesia-siaan.", author: "Imam Al-Ghazali" },
+  { text: "Jangan tertundanya pemberian membuatmu putus asa.", author: "Ibnu Athaillah" },
+  { text: "Di dalam hati terdapat kekosongan yang hanya dapat diisi dengan Allah.", author: "Ibnu Qayyim" },
+  { text: "Sabar bukan tentang berapa lama kau menunggu, tapi bagaimana sikapmu saat menunggu.", author: "Imam Ali" },
+  { text: "Barangsiapa mengenal dirinya, maka ia mengenal Tuhannya.", author: "Imam Al-Ghazali" },
 ];
 
 export default function SplashPage() {
   const router = useRouter();
-
-  const quote =
-    quotes[Math.floor(Math.random() * quotes.length)];
+  const [progress, setProgress] = useState(0);
+  const [quote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
 
   useEffect(() => {
+    // Progress bar
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) { clearInterval(progressInterval); return 100; }
+        return prev + 2;
+      });
+    }, 80);
+
+    // Redirect setelah 4 detik
     const timer = setTimeout(() => {
       router.push("/home");
     }, 4000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
   }, [router]);
 
   return (
-    <main className="min-h-screen bg-[#020617] flex items-center justify-center p-6">
+    <main style={{
+      minHeight: "100vh",
+      background: "linear-gradient(160deg, #0c3d20 0%, #166534 45%, #14532d 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 24,
+      fontFamily: "'Nunito', sans-serif",
+      position: "relative",
+      overflow: "hidden",
+    }}>
 
-      <div className="max-w-md text-center">
+      {/* Background ornament */}
+      <div style={{
+        position: "absolute", top: -80, right: -80,
+        width: 300, height: 300, borderRadius: "50%",
+        border: "1px solid rgba(212,167,50,.1)",
+        boxShadow: "0 0 0 40px rgba(212,167,50,.05), 0 0 0 80px rgba(212,167,50,.02)",
+      }} />
+      <div style={{
+        position: "absolute", bottom: -60, left: -60,
+        width: 200, height: 200, borderRadius: "50%",
+        border: "1px solid rgba(212,167,50,.08)",
+        boxShadow: "0 0 0 30px rgba(212,167,50,.03)",
+      }} />
 
-        <div className="text-6xl mb-6">
-          ☪
+      <div style={{ maxWidth: 360, width: "100%", textAlign: "center", position: "relative", zIndex: 1 }}>
+
+        {/* Logo */}
+        <div style={{
+          width: 100, height: 100, borderRadius: 28,
+          background: "rgba(255,255,255,.1)",
+          border: "1px solid rgba(212,167,50,.3)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 20px",
+          boxShadow: "0 8px 32px rgba(0,0,0,.2)",
+          overflow: "hidden",
+        }}>
+          <img
+            src="/icons/icon-192x192.png"
+            alt="Logo Masjid"
+            style={{ width: 100, height: 100, objectFit: "cover" }}
+          />
         </div>
 
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Masjid Jami' Nuril Anwar
+        {/* Nama masjid */}
+        <h1 style={{
+          fontSize: 22, fontWeight: 800, color: "#fff",
+          marginBottom: 4, letterSpacing: "-0.3px",
+        }}>
+          Masjid Jami&apos; Nuril Anwar
         </h1>
-
-        <p className="text-emerald-400 mb-10">
-          Kata-Kata Hikmah Hari Ini
+        <p style={{ fontSize: 12, color: "rgba(212,167,50,.8)", marginBottom: 32, letterSpacing: "1px", textTransform: "uppercase" }}>
+          Lengo &mdash; Tanjungpura &mdash; Karawang
         </p>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
-
-          <p className="text-xl text-white leading-relaxed italic">
-            "{quote.text}"
+        {/* Quote card */}
+        <div style={{
+          background: "rgba(0,0,0,.25)",
+          border: "1px solid rgba(212,167,50,.2)",
+          borderRadius: 24, padding: "24px 20px",
+          backdropFilter: "blur(10px)",
+          marginBottom: 32,
+        }}>
+          <p style={{
+            fontSize: 13, fontWeight: 700, color: "rgba(212,167,50,.7)",
+            textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 12,
+          }}>
+            ✦ Hikmah Hari Ini
           </p>
-
-          <p className="text-emerald-400 mt-6">
-            — {quote.author}
+          <p style={{
+            fontSize: 17, color: "#fff", lineHeight: 1.7,
+            fontStyle: "italic", marginBottom: 16,
+            fontFamily: "'Georgia', serif",
+          }}>
+            &ldquo;{quote.text}&rdquo;
           </p>
-
+          <div style={{
+            height: 1,
+            background: "linear-gradient(90deg, transparent, rgba(212,167,50,.4), transparent)",
+            marginBottom: 12,
+          }} />
+          <p style={{ fontSize: 13, color: "rgba(212,167,50,.8)", fontWeight: 600 }}>
+            &mdash; {quote.author}
+          </p>
         </div>
 
-        <p className="text-slate-500 mt-8 text-sm">
+        {/* Progress bar */}
+        <div style={{
+          height: 3, background: "rgba(255,255,255,.1)",
+          borderRadius: 10, overflow: "hidden", marginBottom: 10,
+        }}>
+          <div style={{
+            height: "100%", borderRadius: 10,
+            background: "linear-gradient(90deg, #d4a732, #f0c84e)",
+            width: `${progress}%`,
+            transition: "width 0.1s linear",
+          }} />
+        </div>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,.4)", letterSpacing: "1px" }}>
           Memuat aplikasi...
         </p>
 
       </div>
-
     </main>
   );
 }
