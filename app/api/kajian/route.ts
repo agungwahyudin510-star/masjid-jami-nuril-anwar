@@ -1,13 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
- 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
- 
-// GET — ambil semua kajian (urut tanggal)
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
 export async function GET() {
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from("kajian")
     .select("*")
@@ -15,9 +17,9 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
- 
-// POST — tambah kajian
+
 export async function POST(req: NextRequest) {
+  const supabase = getSupabase();
   const body = await req.json();
   const { judul, ustadz, tanggal, waktu, tempat } = body;
   const { data, error } = await supabase
@@ -27,9 +29,9 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
- 
-// DELETE — hapus kajian by id
+
 export async function DELETE(req: NextRequest) {
+  const supabase = getSupabase();
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   const { error } = await supabase.from("kajian").delete().eq("id", id);
