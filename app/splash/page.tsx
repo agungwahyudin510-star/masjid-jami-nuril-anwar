@@ -21,6 +21,7 @@ export default function SplashPage() {
 
   useEffect(() => {
     // Cek apakah sudah pernah lihat splash di sesi ini
+    
     const seen = sessionStorage.getItem("splash-seen");
 
     if (seen) {

@@ -47,6 +47,9 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* =====================================================
+   SHADCN BASE TOKENS
+   ===================================================== */
 :root {
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
@@ -116,14 +119,170 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* =====================================================
+   MASJID THEME — LIGHT MODE (default / :root)
+   ===================================================== */
+:root {
+    --msj-transition:           0.35s ease;
+
+    --msj-bg:                   #f5f0e8;
+    --msj-bg-gradient:          radial-gradient(ellipse 90% 60% at 50% 0%, #d4e8dc 0%, #f5f0e8 60%);
+    --msj-glow:                 rgba(16, 120, 60, 0.12);
+    --msj-pattern-opacity:      0.06;
+
+    --msj-card-bg:              rgba(255, 255, 255, 0.75);
+    --msj-card-border:          rgba(180, 140, 40, 0.2);
+    --msj-card-shadow:          0 4px 20px rgba(0, 0, 0, 0.06);
+
+    --msj-text-title:           #2d4a1e;
+    --msj-text-body:            #3a3a2a;
+    --msj-text-sub:             rgba(0, 0, 0, 0.4);
+    --msj-text-desc:            rgba(0, 0, 0, 0.45);
+    --msj-text-muted:           rgba(0, 0, 0, 0.25);
+
+    --msj-gold:                 #b8962e;
+    --msj-gold-bright:          #c9a84c;
+    --msj-gold-text:            rgba(120, 85, 10, 0.75);
+    --msj-gold-border:          rgba(180, 140, 40, 0.3);
+    --msj-gold-bg:              rgba(201, 168, 76, 0.1);
+    --msj-bismillah:            rgba(140, 100, 20, 0.85);
+    --msj-footer-arabic:        rgba(140, 100, 20, 0.3);
+
+    --msj-green:                #2ecc71;
+    --msj-green-dark:           #1a6b38;
+    --msj-green-text:           #1a6b38;
+    --msj-green-border:         rgba(30, 160, 80, 0.35);
+    --msj-green-bg:             rgba(46, 204, 113, 0.1);
+
+    --msj-divider-text:         rgba(120, 90, 10, 0.5);
+    --msj-divider-line-l:       linear-gradient(90deg, transparent, rgba(180, 140, 40, 0.3));
+    --msj-divider-line-r:       linear-gradient(90deg, rgba(180, 140, 40, 0.3), transparent);
+
+    --msj-bar:                  linear-gradient(90deg, transparent, #8a6820 20%, #c9a84c 50%, #8a6820 80%, transparent);
+
+    --msj-toggle-bg:            rgba(0, 0, 0, 0.06);
+    --msj-toggle-border:        rgba(180, 140, 40, 0.3);
+    --msj-toggle-color:         #3a2a05;
+
+    --msj-svg-bg:               #f5f0e8;
+    --msj-svg-green:            #2d7a4a;
+
+    --msj-input-bg:             rgba(255, 255, 255, 0.8);
+    --msj-input-border:         rgba(180, 140, 40, 0.25);
+    --msj-input-focus:          rgba(180, 140, 40, 0.5);
+    --msj-input-text:           #2d4a1e;
+    --msj-input-placeholder:    rgba(0, 0, 0, 0.3);
+
+    --msj-badge-bg:             rgba(201, 168, 76, 0.12);
+    --msj-badge-text:           rgba(120, 85, 10, 0.75);
+    --msj-badge-border:         rgba(180, 140, 40, 0.3);
+
+    --msj-admin-hover-border:   rgba(160, 110, 20, 0.45);
+    --msj-admin-hover-shadow:   0 8px 32px rgba(0,0,0,0.1), -4px 0 0 rgba(180,140,40,0.4);
+    --msj-admin-icon-bg:        linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08));
+    --msj-admin-icon-border:    rgba(180, 140, 40, 0.35);
+    --msj-jemaah-hover-border:  rgba(30, 150, 80, 0.45);
+    --msj-jemaah-hover-shadow:  0 8px 32px rgba(0,0,0,0.1), -4px 0 0 rgba(46,160,80,0.35);
+    --msj-jemaah-icon-bg:       linear-gradient(135deg, rgba(46,204,113,0.2), rgba(46,204,113,0.08));
+    --msj-jemaah-icon-border:   rgba(30, 160, 80, 0.35);
+}
+
+/* =====================================================
+   MASJID THEME — DARK MODE
+   ===================================================== */
+.dark {
+    --msj-bg:                   #060f09;
+    --msj-bg-gradient:          radial-gradient(ellipse 90% 60% at 50% 0%, #0d2e18 0%, #060f09 60%);
+    --msj-glow:                 rgba(16, 72, 38, 0.45);
+    --msj-pattern-opacity:      0.04;
+
+    --msj-card-bg:              rgba(255, 255, 255, 0.03);
+    --msj-card-border:          rgba(201, 168, 76, 0.12);
+    --msj-card-shadow:          0 4px 20px rgba(0, 0, 0, 0.3);
+
+    --msj-text-title:           #e8d8a0;
+    --msj-text-body:            rgba(255, 255, 255, 0.85);
+    --msj-text-sub:             rgba(255, 255, 255, 0.3);
+    --msj-text-desc:            rgba(255, 255, 255, 0.3);
+    --msj-text-muted:           rgba(255, 255, 255, 0.15);
+
+    --msj-gold:                 #b8962e;
+    --msj-gold-bright:          #c9a84c;
+    --msj-gold-text:            rgba(201, 168, 76, 0.7);
+    --msj-gold-border:          rgba(201, 168, 76, 0.25);
+    --msj-gold-bg:              rgba(201, 168, 76, 0.08);
+    --msj-bismillah:            rgba(201, 168, 76, 0.7);
+    --msj-footer-arabic:        rgba(201, 168, 76, 0.18);
+
+    --msj-green:                #2ecc71;
+    --msj-green-dark:           #27ae60;
+    --msj-green-text:           #a8f0c0;
+    --msj-green-border:         rgba(46, 204, 113, 0.22);
+    --msj-green-bg:             rgba(46, 204, 113, 0.08);
+
+    --msj-divider-text:         rgba(201, 168, 76, 0.4);
+    --msj-divider-line-l:       linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.25));
+    --msj-divider-line-r:       linear-gradient(90deg, rgba(201, 168, 76, 0.25), transparent);
+
+    --msj-bar:                  linear-gradient(90deg, transparent, #b8962e 20%, #f0d080 50%, #b8962e 80%, transparent);
+
+    --msj-toggle-bg:            rgba(255, 255, 255, 0.08);
+    --msj-toggle-border:        rgba(201, 168, 76, 0.25);
+    --msj-toggle-color:         #e8d8a0;
+
+    --msj-svg-bg:               #060f09;
+    --msj-svg-green:            #1a5c38;
+
+    --msj-input-bg:             rgba(255, 255, 255, 0.04);
+    --msj-input-border:         rgba(201, 168, 76, 0.2);
+    --msj-input-focus:          rgba(201, 168, 76, 0.45);
+    --msj-input-text:           #e8d8a0;
+    --msj-input-placeholder:    rgba(255, 255, 255, 0.25);
+
+    --msj-badge-bg:             rgba(201, 168, 76, 0.08);
+    --msj-badge-text:           rgba(201, 168, 76, 0.6);
+    --msj-badge-border:         rgba(201, 168, 76, 0.2);
+
+    --msj-admin-hover-border:   rgba(201, 168, 76, 0.35);
+    --msj-admin-hover-shadow:   0 8px 32px rgba(0,0,0,0.4), -4px 0 0 rgba(201,168,76,0.3);
+    --msj-admin-icon-bg:        linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+    --msj-admin-icon-border:    rgba(201, 168, 76, 0.22);
+    --msj-jemaah-hover-border:  rgba(46, 204, 113, 0.35);
+    --msj-jemaah-hover-shadow:  0 8px 32px rgba(0,0,0,0.4), -4px 0 0 rgba(46,204,113,0.3);
+    --msj-jemaah-icon-bg:       linear-gradient(135deg, rgba(46,204,113,0.15), rgba(46,204,113,0.05));
+    --msj-jemaah-icon-border:   rgba(46, 204, 113, 0.22);
+}
+
+/* =====================================================
+   GLOBAL TRANSITION
+   ===================================================== */
+*, *::before, *::after {
+    transition:
+        background-color var(--msj-transition),
+        background var(--msj-transition),
+        border-color var(--msj-transition),
+        color var(--msj-transition),
+        box-shadow var(--msj-transition);
+}
+
+svg *, canvas, video, img {
+    transition: none;
+}
+
+/* =====================================================
+   SHADCN BASE — PENTING: body pakai msj-bg bukan shadcn
+   ===================================================== */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        /* Ganti dari bg-background ke msj variables */
+        background: var(--msj-bg);
+        color: var(--msj-text-body);
+        transition: background var(--msj-transition), color var(--msj-transition);
     }
-  html {
-    @apply font-sans;
+    html {
+        @apply font-sans;
     }
 }
