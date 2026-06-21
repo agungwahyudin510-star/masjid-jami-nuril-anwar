@@ -20,7 +20,7 @@ const PRAYERS = [
 
 const MENU = [
   { href: "/quran",      emoji: "📖", label: "Al-Quran",   sub: "114 Surah",       action: "Baca",     color: "#2ecc71", border: "rgba(46,204,113,.25)",  bg: "rgba(46,204,113,.08)" },
-  { href: "/hadist",     emoji: "📜", label: "kalam hikmah",     sub: "hikmah & kisah",  action: "Telusuri", color: "#c9a84c", border: "rgba(201,168,76,.25)",  bg: "rgba(201,168,76,.08)" },
+  { href: "/kalam",     emoji: "📜", label: "kalam hikmah",     sub: "hikmah & kisah",  action: "Telusuri", color: "#c9a84c", border: "rgba(201,168,76,.25)",  bg: "rgba(201,168,76,.08)" },
   { href: "/organisasi", emoji: "🤝", label: "Organisasi", sub: "Struktur & Info", action: "Lihat",    color: "#3498db", border: "rgba(52,152,219,.25)",  bg: "rgba(52,152,219,.08)" },
   { href: "/pengumuman", emoji: "📢", label: "Pengumuman", sub: "Info & Kegiatan", action: "Lihat",    color: "#9b59b6", border: "rgba(155,89,182,.25)",  bg: "rgba(155,89,182,.08)" },
 ];

@@ -68,7 +68,7 @@ const HIKMAH_DATA: Hikmah[] = [
   { id:29, quote:"Ya Allah, jika aku menyembah-Mu karena takut neraka, bakarlah aku di dalamnya. Jika aku menyembah-Mu karena mengharap surga, jauhkan aku darinya. Namun jika aku menyembah-Mu karena Engkau sendiri, janganlah sembunyikan keindahan-Mu yang abadi dariku.", author:"Rabi'ah Al-Adawiyyah", authorDetail:"Wali & Sufi Perempuan, Basra (717–801)", source:"Syair dan doa-doanya", category:"Cinta Ilahi & Ikhlas", color:"#c9a84c", border:"rgba(201,168,76,.3)", bg:"rgba(201,168,76,.08)", tags:["rabia","cinta ilahi","ikhlas","sufi","doa"] },
 ];
 
-const POPULAR_TAGS = ["rumi","al-ghazali","sufi","cinta","ilmu","sabar","hati","ibnu qayyim","jiwa","makrifat","akhlak","zuhud","tasawuf","ls app/api/prayerSayyidina Ali","syafi'i"];
+const POPULAR_TAGS = ["rumi","al-ghazali","sufi","cinta","ilmu","sabar","hati","ibnu qayyim","jiwa","makrifat","akhlak","zuhud","tasawuf","Sayyidina Ali","syafi'i"];
 
 const KISAH_SUGGESTIONS = [
   "Kisah Layla dan Majnun",
