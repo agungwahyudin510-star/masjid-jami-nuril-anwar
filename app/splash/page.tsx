@@ -9,7 +9,7 @@ const quotes = [
   { text: "Ilmu tanpa amal adalah kegilaan, amal tanpa ilmu adalah kesia-siaan.", author: "Imam Al-Ghazali" },
   { text: "Jangan tertundanya pemberian membuatmu putus asa.", author: "Ibnu Athaillah" },
   { text: "Di dalam hati terdapat kekosongan yang hanya dapat diisi dengan Allah.", author: "Ibnu Qayyim" },
-  { text: "Sabar bukan tentang berapa lama kau menunggu, tapi bagaimana sikapmu saat menunggu.", author: "Imam Ali" },
+  { text: "Sabar bukan tentang berapa lama kau menunggu, tapi bagaimana sikapmu saat menunggu.", author: "Sayyidina Ali" },
   { text: "Barangsiapa mengenal dirinya, maka ia mengenal Tuhannya.", author: "Imam Al-Ghazali" },
 ];
 
