@@ -1,78 +1,92 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const VALID_TOPICS = ["layla","majnun","rumi","syams","rabia","ibnu sina","ghazali","uwais","simurgh","hafiz","ibnu arabi","ibnu qayyim","Sayyidina Ali","syafi","sufi","tasawuf","cinta","kisah","hikayat","cerita"];
+const BOOK_MAP: Record<string, { ind: string; ara: string; total: number }> = {
+  bukhari:      { ind: "ind-bukhari",   ara: "ara-bukhari1",  total: 7563 },
+  muslim:       { ind: "ind-muslim",    ara: "ara-muslim",    total: 5362 },
+  "abu-dawud":  { ind: "ind-abudawud",  ara: "ara-abudawud",  total: 5274 },
+  tirmidzi:     { ind: "ind-tirmidhi",  ara: "ara-tirmidhi",  total: 3956 },
+  "ibnu-majah": { ind: "ind-ibnmajah",  ara: "ara-ibnmajah",  total: 4341 },
+  nasai:        { ind: "ind-nasai",     ara: "ara-nasai",     total: 5758 },
+  malik:        { ind: "ind-malik",     ara: "ara-malik",     total: 1832 },
+  darimi:       { ind: "ind-darimi",    ara: "ara-darimi",    total: 3367 },
+};
 
-export async function POST(req: NextRequest) {
+const BASE = "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions";
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const book = searchParams.get("book") || "bukhari";
+  const page = parseInt(searchParams.get("page") || "1");
+  const q = searchParams.get("q")?.toLowerCase() || "";
+  const limit = 10;
+
+  const bookMeta = BOOK_MAP[book] || BOOK_MAP["bukhari"];
+
   try {
-    const { query } = await req.json();
-    if (!query || typeof query !== "string") {
-      return NextResponse.json({ error: "Query tidak valid" }, { status: 400 });
-    }
+    // MODE SEARCH — ambil full book lalu filter
+    if (q) {
+      const [indRes, araRes] = await Promise.all([
+        fetch(`${BASE}/${bookMeta.ind}.min.json`, { next: { revalidate: 86400 } }),
+        fetch(`${BASE}/${bookMeta.ara}.min.json`, { next: { revalidate: 86400 } }),
+      ]);
 
-    const q = query.toLowerCase();
-    const isValid = VALID_TOPICS.some(t => q.includes(t));
-    if (!isValid) {
-      return NextResponse.json({
-        result: "",
-        referensi: [],
-        hikmah: "",
-        error: "Kisah tidak ditemukan. Coba cari nama ulama, tokoh sufi, atau kisah klasik Islam."
+      const [indData, araData] = await Promise.all([
+        indRes.json(),
+        araRes.ok ? araRes.json() : { hadiths: [] },
+      ]);
+
+      const indHadiths: { hadithnumber: number; text: string }[] = indData?.hadiths || [];
+      const araMap: Record<number, string> = {};
+      (araData?.hadiths || []).forEach((h: { hadithnumber: number; text: string }) => {
+        araMap[h.hadithnumber] = h.text;
       });
+
+      const found = indHadiths
+        .filter(h => h.text?.toLowerCase().includes(q))
+        .slice(0, 30)
+        .map(h => ({
+          number: h.hadithnumber,
+          arab: araMap[h.hadithnumber] || "",
+          id: h.text,
+          book,
+        }));
+
+      return NextResponse.json({ hadiths: found, total: found.length, page: 1, book, isSearch: true });
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY ?? ""}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        max_tokens: 1200,
-        temperature: 0.8,
-        messages: [
-          {
-            role: "system",
-            content: `Kamu adalah pencerita kisah klasik Islam dan Sufi. Jawab HANYA dalam format JSON valid berikut, tanpa teks lain di luar JSON:
-{
-  "kisah": "teks cerita 250-400 kata, paragraf mengalir, bahasa Indonesia puitis, tanpa markdown heading",
-  "referensi": [
-    { "judul": "nama kitab/buku", "penulis": "nama penulis", "keterangan": "penjelasan singkat relevansi" }
-  ],
-  "hikmah": "satu kalimat hikmah penutup yang memorable"
-}
-Referensi harus 2-4 sumber nyata yang berkaitan dengan kisah.`,
-          },
-          {
-            role: "user",
-            content: `Ceritakan kisah: ${query}`,
-          },
-        ],
-      }),
+    // MODE NORMAL — fetch per nomor secara parallel
+    const start = (page - 1) * limit + 1;
+    const nums = Array.from({ length: limit }, (_, i) => start + i).filter(n => n <= bookMeta.total);
+
+    const results = await Promise.all(
+      nums.map(async (num) => {
+        const [indRes, araRes] = await Promise.all([
+          fetch(`${BASE}/${bookMeta.ind}/${num}.min.json`, { next: { revalidate: 86400 } }),
+          fetch(`${BASE}/${bookMeta.ara}/${num}.min.json`, { next: { revalidate: 86400 } }),
+        ]);
+        const [indData, araData] = await Promise.all([
+          indRes.ok ? indRes.json() : null,
+          araRes.ok ? araRes.json() : null,
+        ]);
+        if (!indData) return null;
+        return {
+          number: num,
+          arab: araData?.hadiths?.[0]?.text || "",
+          id: indData?.hadiths?.[0]?.text || "",
+          book,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      hadiths: results.filter(Boolean),
+      total: bookMeta.total,
+      page,
+      book,
+      isSearch: false,
     });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("Groq error:", err);
-      return NextResponse.json({ error: "Gagal dari Groq API" }, { status: 500 });
-    }
-
-    const data = await response.json();
-    const raw = data.choices?.[0]?.message?.content ?? "";
-
-    try {
-      const clean = raw.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      return NextResponse.json({
-        result: parsed.kisah ?? "Kisah tidak ditemukan.",
-        referensi: parsed.referensi ?? [],
-        hikmah: parsed.hikmah ?? "",
-      });
-    } catch {
-      return NextResponse.json({ result: raw, referensi: [], hikmah: "" });
-    }
   } catch (err) {
-    console.error("Route error:", err);
-    return NextResponse.json({ error: "Terjadi kesalahan server" }, { status: 500 });
+    console.error("Hadist error:", err);
+    return NextResponse.json({ error: "Gagal mengambil data" }, { status: 500 });
   }
 }
